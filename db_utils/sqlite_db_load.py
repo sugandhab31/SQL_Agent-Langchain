@@ -20,12 +20,14 @@ def load_db():
             return None
 
 @contextmanager
-def connect_db(local_db_path: str):
-    con = sqlite3.connect(local_db_path)
-    try:
-        yield con
-    finally:
-        con.close()
+def connect_db():
+    local_db_path = load_db()
+    if local_db_path is not None:
+        con = sqlite3.connect(local_db_path)
+        try:
+            yield con
+        finally:
+            con.close()
 
     """cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     tables = [row[0] for row in cursor.fetchall() if not row[0].startswith("sqlite_")]

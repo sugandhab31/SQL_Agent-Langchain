@@ -1,7 +1,7 @@
 import sqlite3
 from model.model import get_model
 from langchain.tools import tool
-from sqlite_db_load import connect_db
+from db_utils.sqlite_db_load import connect_db
 
 """
 sql_db_query: Input to this tool is a detailed and correct SQL query, output is a result from the database.
@@ -23,7 +23,7 @@ sql_db_query_checker: Use this tool to double check if your query is correct bef
 def sql_db_list_tables() -> str:
     """Input is an empty string, output is a comma-separated list of tables in the database."""
     try:
-        with connect_db("my_db.sqlite") as con:
+        with connect_db() as con:
             cursor = con.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = [row[0] for row in cursor.fetchall() if not row[0].startswith("sqlite_")]
@@ -38,7 +38,7 @@ def sql_db_schema(table_name: str) -> str:
     Be sure that the tables actually exist by calling sql_db_list_tables first!
     Example Input: table1, table2, table3"""
     try:
-        with connect_db("my_db.sqlite") as con:
+        with connect_db() as con:
             cursor = con.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             valid_tables = {row[0] for row in cursor.fetchall() if not row[0].startswith("sqlite_")}
@@ -78,7 +78,7 @@ def sql_db_query(query: str) -> str:
     If an error is returned, rewrite the query, check the query, and try again.
     If you encounter an issue with Unknown column 'xxxx' in 'field list', use sql_db_schema to query the correct table fields."""
     try:
-        with connect_db("my_db.sqlite") as con:
+        with connect_db() as con:
             cursor = con.cursor()
             cursor.execute(query)
             res = cursor.fetchall()
